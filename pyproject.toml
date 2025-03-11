@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "pneumonia-detection"
+version = "0.1.0"
+description = "A project to classify pneumonia from chest X-ray images."
+authors = ["Andrii Norets <104683293+KabinetFnsv@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+torch = "^2.6.0"
+torchvision = "^0.21.0"
+matplotlib = "^3.10.1"
+kaggle = "^1.6.17"
+kagglehub = "^0.3.10"
+ruff = "^0.9.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
