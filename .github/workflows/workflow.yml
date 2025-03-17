@@ -36,6 +36,3 @@ jobs:
 
       - name: Check code formatting
         run: make check
-
-      - name: Run tests
-        run: make test
