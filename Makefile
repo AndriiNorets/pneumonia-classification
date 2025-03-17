@@ -1,9 +1,6 @@
 install:
 	poetry install --no-root
 
-download-data:
-	poetry run python data/download.py
-
 test:
 	poetry run pytest ./tests -vv
 
