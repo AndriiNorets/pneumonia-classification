@@ -29,7 +29,7 @@ class PneumoniaDataModule(LightningDataModule):
         val_transform,
         test_transform,
         data_dir=".",
-        batch_size=32,
+        batch_size=16,
         num_workers=4,
     ):
         super().__init__()
@@ -81,7 +81,7 @@ class PneumoniaDataModule(LightningDataModule):
     def val_dataloader(self):
         return DataLoader(
             self.val_dataset,
-            batch_size=int(self.batch_size / 2),
+            batch_size=int(self.batch_size),
             num_workers=self.num_workers,
         )
 
