@@ -8,6 +8,7 @@ __pycache__/
 
 # Project folders and files
 dataset/data/
+checkpoints/
 
 # Distribution / packaging
 .Python

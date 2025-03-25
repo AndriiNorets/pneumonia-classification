@@ -5,7 +5,7 @@ import wandb
 from torchvision import transforms
 
 from dataset.datamodule import PneumoniaDataModule
-from models.resnet18 import PneumoniaResNet
+from models.resnet18.resnet18 import PneumoniaResNet
 
 
 wandb.login()
@@ -35,7 +35,7 @@ data_module = PneumoniaDataModule(
     test_transform=val_transform,
     data_dir="./dataset/data/chest_xray",
     batch_size=16,
-    num_workers=4,
+    num_workers=0,
 )
 
 model = PneumoniaResNet(num_classes=2, learning_rate=1e-4)

@@ -20,6 +20,7 @@ class PneumoniaResNet(LightningModule):
         x, y = batch
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
+        
         self.log("train_loss", loss)
         return loss
 

@@ -50,6 +50,9 @@ class PneumoniaDataModule(LightningDataModule):
         if os.path.exists(self.data_dir) and os.listdir(self.data_dir):
             print(f"Dataset already exists at {self.data_dir}. Skipping download.")
         else:
+            os.environ["KAGGLE_USERNAME"] = "anorets"  
+            os.environ["KAGGLE_KEY"] = "4863b1d062f36bd511f17e6e786fece2"
+            
             kaggle.api.authenticate()
             dataset_path = kaggle.api.dataset_download_files(
                 self.dataset_link, path=self.data_dir, unzip=True
