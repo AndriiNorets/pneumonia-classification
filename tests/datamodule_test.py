@@ -2,52 +2,51 @@ import pytest
 import torch
 from unittest.mock import patch, MagicMock
 from dataset.datamodule import PneumoniaDataModule
-import torchvision.transforms.v2 as transforms
+from torchvision.transforms import v2
 import structlog
 import os
 
 
 @pytest.fixture
 def pneumonia_data():
-    dataset_link = "paultimothymooney/chest-xray-pneumonia"
-    data_dir = "./dataset/data/chest_xray"
+    dataset_link = "hf-vision/chest-xray-pneumonia"
+    data_dir = "./dataset/data"
+    data_files = "data/chest-xray-pneumonia-train-00000-of-00001"
     batch_size = 16
     num_workers = 4
 
-    train_transforms = transforms.Compose(
-        [
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
-    )
-    val_transforms = transforms.Compose(
-        [
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
-    )
-    test_transforms = transforms.Compose(
-        [
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ]
-    )
+    train_transform = v2.Compose([
+        v2.Resize((224, 224)),
+        v2.RandomHorizontalFlip(p=0.5),
+        v2.RandomRotation(10),
+        v2.ToImage(),
+        v2.ToDtype(torch.float32, scale=True),
+        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+
+    val_transform = v2.Compose([
+        v2.Resize((224, 224)),
+        v2.ToImage(),
+        v2.ToDtype(torch.float32, scale=True),
+        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+
+    test_transform = v2.Compose([
+        v2.Resize((224, 224)),
+        v2.ToImage(),
+        v2.ToDtype(torch.float32, scale=True),
+        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
 
     return PneumoniaDataModule(
         dataset_link=dataset_link,
         data_dir=data_dir,
+        data_files=data_files,
         batch_size=batch_size,
         num_workers=num_workers,
-        train_transform=train_transforms,
-        val_transform=val_transforms,
-        test_transform=test_transforms,
+        train_transform=train_transform,
+        val_transform=val_transform,
+        test_transform=test_transform,
     )
 
 
@@ -55,13 +54,10 @@ def test_prepare_data(pneumonia_data):
     print("Preparing data...")
     pneumonia_data.prepare_data()
 
-    expected_dirs = ["train", "val", "test"]
-    for dir_name in expected_dirs:
-        dir_path = f"{pneumonia_data.data_dir}/{dir_name}"
-        assert os.path.exists(dir_path), f"Directory {dir_path} does not exist"
-        assert os.path.isdir(dir_path), f"{dir_path} is not a directory"
+    assert os.path.exists(pneumonia_data.data_dir), f"Directory {pneumonia_data.data_dir} does not exist"
+    assert os.path.isdir(pneumonia_data.data_dir), f"{pneumonia_data.data_dir} is not a directory"
 
-    print("Directory check completed successfully.")
+    print(f"Data directory check passed: {pneumonia_data.data_dir} exists")
 
 
 def test_setup_datasets(pneumonia_data):
