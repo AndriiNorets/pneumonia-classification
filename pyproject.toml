@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pneumonia-detection"
-version = "0.2.2"
+version = "0.2.3"
 description = "A project to classify pneumonia from chest X-ray images."
 authors = ["Andrii Norets <104683293+KabinetFnsv@users.noreply.github.com>"]
 readme = "README.md"
@@ -17,6 +17,7 @@ pytorch-lightning = "^2.5.0.post0"
 pytest = "^8.3.5"
 omegaconf = "^2.3.0"
 structlog = "^25.2.0"
+wandb = "^0.19.8"
 
 
 [build-system]
