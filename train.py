@@ -1,4 +1,5 @@
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping, Trainer
+import pytorch_lightning as pl
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
 import wandb
 from torchvision import transforms
@@ -59,7 +60,7 @@ wandb_logger = WandbLogger(
     save_dir="./wandb_logs",
 )
 
-trainer = Trainer(
+trainer = pl.Trainer(
     accelerator="auto",
     devices="auto",
     max_epochs=20,
