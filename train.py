@@ -29,18 +29,25 @@ val_transform = transforms.Compose(
 )
 
 data_module = PneumoniaDataModule(
-    dataset_link="paultimothymooney/chest-xray-pneumonia",
+    dataset_link="hf-vision/chest-xray-pneumonia",
     train_transform=train_transform,
     val_transform=val_transform,
     test_transform=val_transform,
-    data_dir="./dataset/data/chest_xray",
+    data_dir = "./dataset/data",
     batch_size=16,
-    num_workers=0,
+    num_workers=4,
 )
 
 model = PneumoniaResNet(num_classes=2, learning_rate=1e-4)
 
-# Define callbacks
+train_checkpoint = ModelCheckpoint(
+    monitor="train_loss",
+    dirpath="./checkpoints",
+    filename="train-loss-{epoch:02d}-{train_loss:.3f}",
+    save_top_k=3,
+    mode="min",  
+)
+
 checkpoint_callback = ModelCheckpoint(
     monitor="val_loss",
     dirpath="./checkpoints",
@@ -63,7 +70,7 @@ wandb_logger = WandbLogger(
 trainer = pl.Trainer(
     accelerator="auto",
     devices="auto",
-    max_epochs=20,
+    max_epochs=100,
     callbacks=[checkpoint_callback, early_stop_callback],
     logger=wandb_logger,
     deterministic=True,
