@@ -15,28 +15,34 @@ def pneumonia_data():
     batch_size = 16
     num_workers = 4
 
-    train_transform = v2.Compose([
-        v2.Resize((224, 224)),
-        v2.RandomHorizontalFlip(p=0.5),
-        v2.RandomRotation(10),
-        v2.ToImage(),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+    train_transform = v2.Compose(
+        [
+            v2.Resize((224, 224)),
+            v2.RandomHorizontalFlip(p=0.5),
+            v2.RandomRotation(10),
+            v2.ToImage(),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
 
-    val_transform = v2.Compose([
-        v2.Resize((224, 224)),
-        v2.ToImage(),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+    val_transform = v2.Compose(
+        [
+            v2.Resize((224, 224)),
+            v2.ToImage(),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
 
-    test_transform = v2.Compose([
-        v2.Resize((224, 224)),
-        v2.ToImage(),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+    test_transform = v2.Compose(
+        [
+            v2.Resize((224, 224)),
+            v2.ToImage(),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
 
     return PneumoniaDataModule(
         dataset_link=dataset_link,
@@ -54,8 +60,12 @@ def test_prepare_data(pneumonia_data):
     print("Preparing data...")
     pneumonia_data.prepare_data()
 
-    assert os.path.exists(pneumonia_data.data_dir), f"Directory {pneumonia_data.data_dir} does not exist"
-    assert os.path.isdir(pneumonia_data.data_dir), f"{pneumonia_data.data_dir} is not a directory"
+    assert os.path.exists(pneumonia_data.data_dir), (
+        f"Directory {pneumonia_data.data_dir} does not exist"
+    )
+    assert os.path.isdir(pneumonia_data.data_dir), (
+        f"{pneumonia_data.data_dir} is not a directory"
+    )
 
     print(f"Data directory check passed: {pneumonia_data.data_dir} exists")
 

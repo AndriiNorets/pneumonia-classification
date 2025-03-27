@@ -15,36 +15,40 @@ import io
 class PneumoniaDataSet(Dataset):
     def __init__(self, hf_data, transform=None):
         self.data = hf_data
-        self.transform = transform if transform is not None else self._default_transform()
+        self.transform = (
+            transform if transform is not None else self._default_transform()
+        )
 
     def _default_transform(self):
-        return v2.Compose([
-            v2.Resize((224, 224)),
-            v2.ToImage(),
-            v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        ])
+        return v2.Compose(
+            [
+                v2.Resize((224, 224)),
+                v2.ToImage(),
+                v2.ToDtype(torch.float32, scale=True),
+                v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            ]
+        )
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
         sample = self.data[idx]
-        
+
         try:
-            image = sample['image']
-            if isinstance(image, dict) and 'bytes' in image:
-                image = Image.open(io.BytesIO(image['bytes']))
+            image = sample["image"]
+            if isinstance(image, dict) and "bytes" in image:
+                image = Image.open(io.BytesIO(image["bytes"]))
             elif isinstance(image, np.ndarray):
                 image = Image.fromarray(image)
-                
-            image = image.convert('RGB')
-            image = self.transform(image)  
-            label = torch.tensor(sample['label'], dtype=torch.long)
-            
+
+            image = image.convert("RGB")
+            image = self.transform(image)
+            label = torch.tensor(sample["label"], dtype=torch.long)
+
         except Exception as e:
             raise ValueError(f"Error processing sample {idx}: {e}")
-            
+
         return image, label
 
 

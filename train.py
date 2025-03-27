@@ -33,20 +33,12 @@ data_module = PneumoniaDataModule(
     train_transform=train_transform,
     val_transform=val_transform,
     test_transform=val_transform,
-    data_dir = "./dataset/data",
+    data_dir="./dataset/data",
     batch_size=16,
-    num_workers=4,
+    num_workers=0,
 )
 
 model = PneumoniaResNet(num_classes=2, learning_rate=1e-4)
-
-train_checkpoint = ModelCheckpoint(
-    monitor="train_loss",
-    dirpath="./checkpoints",
-    filename="train-loss-{epoch:02d}-{train_loss:.3f}",
-    save_top_k=3,
-    mode="min",  
-)
 
 checkpoint_callback = ModelCheckpoint(
     monitor="val_loss",
@@ -79,7 +71,7 @@ trainer = pl.Trainer(
 
 trainer.fit(model, datamodule=data_module)
 
-trainer.test(model, datamodule=data_module)
+trainer.test(model, datamodule=data_module, ckpt_path="best")
 
 wandb.finish()
 
