@@ -6,21 +6,22 @@ from torchvision import transforms
 
 from dataset.datamodule import PneumoniaDataModule
 from models.resnet18.resnet18 import PneumoniaResNet
+from models.vgg16.vgg16 import PneumoniaVGG16
 
 
 wandb.login()
 
-train_transform = transforms.Compose(
-    [
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(15),  
-        transforms.ColorJitter(brightness=0.2, contrast=0.2),
-        transforms.RandomAffine(degrees=0, translate=(0.2, 0.2)),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ]
-)
+train_transform = transforms.Compose([
+    transforms.Resize(256),
+    transforms.RandomCrop(224),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomVerticalFlip(p=0.2),
+    transforms.RandomRotation(10),  # Reduced from 15
+    transforms.ColorJitter(brightness=0.1, contrast=0.1),  # Reduced intensity
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    transforms.RandomErasing(p=0.1, scale=(0.02, 0.1)),  # Added
+])
 
 val_transform = transforms.Compose(
     [
@@ -41,7 +42,8 @@ data_module = PneumoniaDataModule(
     num_workers=4,
 )
 
-model = PneumoniaResNet(num_classes=2, learning_rate=1e-4)
+# model = PneumoniaResNet(num_classes=2)
+model = PneumoniaVGG16(num_classes=2) 
 
 checkpoint_callback = ModelCheckpoint(
     monitor="val_loss",
@@ -57,7 +59,7 @@ early_stop_callback = EarlyStopping(
 
 wandb_logger = WandbLogger(
     project="pneumonia-classification",
-    name="resnet18",
+    name="vgg16",
     log_model="all",
     save_dir="./wandb_logs",
 )
@@ -70,7 +72,8 @@ trainer = pl.Trainer(
     logger=wandb_logger,
     deterministic=True,
     log_every_n_steps=10,
-    gradient_clip_val=0.5,
+    gradient_clip_val=1.0,
+    accumulate_grad_batches=4,
 )
 
 trainer.fit(model, datamodule=data_module)
