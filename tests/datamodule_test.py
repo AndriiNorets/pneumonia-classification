@@ -13,7 +13,7 @@ def pneumonia_data():
     data_dir = "./dataset/data"
     data_files = "data/chest-xray-pneumonia-train-00000-of-00001"
     batch_size = 16
-    num_workers = 4
+    num_workers = 0
 
     train_transform = v2.Compose(
         [
@@ -22,7 +22,7 @@ def pneumonia_data():
             v2.RandomRotation(10),
             v2.ToImage(),
             v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            v2.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
         ]
     )
 
@@ -31,7 +31,7 @@ def pneumonia_data():
             v2.Resize((224, 224)),
             v2.ToImage(),
             v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            v2.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
         ]
     )
 
@@ -40,7 +40,7 @@ def pneumonia_data():
             v2.Resize((224, 224)),
             v2.ToImage(),
             v2.ToDtype(torch.float32, scale=True),
-            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            v2.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
         ]
     )
 

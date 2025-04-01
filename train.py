@@ -19,7 +19,7 @@ train_transform = transforms.Compose([
     transforms.RandomRotation(10),  # Reduced from 15
     transforms.ColorJitter(brightness=0.1, contrast=0.1),  # Reduced intensity
     transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
     transforms.RandomErasing(p=0.1, scale=(0.02, 0.1)),  # Added
 ])
 
@@ -28,7 +28,7 @@ val_transform = transforms.Compose(
         transforms.Resize(256),
         transforms.CenterCrop(224),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
     ]
 )
 
@@ -42,8 +42,8 @@ data_module = PneumoniaDataModule(
     num_workers=4,
 )
 
-# model = PneumoniaResNet(num_classes=2)
-model = PneumoniaVGG16(num_classes=2) 
+model = PneumoniaResNet(num_classes=2)
+# model = PneumoniaVGG16(num_classes=2) 
 
 checkpoint_callback = ModelCheckpoint(
     monitor="val_loss",
@@ -59,7 +59,7 @@ early_stop_callback = EarlyStopping(
 
 wandb_logger = WandbLogger(
     project="pneumonia-classification",
-    name="vgg16",
+    name="resnet18",
     log_model="all",
     save_dir="./wandb_logs",
 )
