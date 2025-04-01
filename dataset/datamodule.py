@@ -86,31 +86,41 @@ class PneumoniaDataModule(LightningDataModule):
             self.dataset_link,
             cache_dir=self.data_dir,
         )
-        
 
         print(f"Dataset extracted to {self.data_dir}")
 
     def setup(self, stage=None):
+        pneumonia_samples = [
+            sample for sample in self.data_dict["train"] if sample["label"] == 1
+        ]
+        normal_samples = [
+            sample for sample in self.data_dict["train"] if sample["label"] == 0
+        ]
 
-        pneumonia_samples = [sample for sample in self.data_dict["train"] if sample["label"] == 1]
-        normal_samples = [sample for sample in self.data_dict["train"] if sample["label"] == 0]
-        
         pneumonia_train_size = int(0.8 * len(pneumonia_samples))  # 3418
-        pneumonia_val_size = int(0.1 * len(pneumonia_samples))    # 427
-        pneumonia_test_size = len(pneumonia_samples) - pneumonia_train_size - pneumonia_val_size  # 428
-        
-        normal_train_size = int(0.8 * len(normal_samples))       # 1266
-        normal_val_size = int(0.1 * len(normal_samples))         # 158
-        normal_test_size = len(normal_samples) - normal_train_size - normal_val_size  # 159
-        
+        pneumonia_val_size = int(0.1 * len(pneumonia_samples))  # 427
+        pneumonia_test_size = (
+            len(pneumonia_samples) - pneumonia_train_size - pneumonia_val_size
+        )  # 428
+
+        normal_train_size = int(0.8 * len(normal_samples))  # 1266
+        normal_val_size = int(0.1 * len(normal_samples))  # 158
+        normal_test_size = (
+            len(normal_samples) - normal_train_size - normal_val_size
+        )  # 159
+
         pneumonia_train = pneumonia_samples[:pneumonia_train_size]
-        pneumonia_val = pneumonia_samples[pneumonia_train_size:pneumonia_train_size + pneumonia_val_size]
-        pneumonia_test = pneumonia_samples[pneumonia_train_size + pneumonia_val_size:]
+        pneumonia_val = pneumonia_samples[
+            pneumonia_train_size : pneumonia_train_size + pneumonia_val_size
+        ]
+        pneumonia_test = pneumonia_samples[pneumonia_train_size + pneumonia_val_size :]
 
         normal_train = normal_samples[:normal_train_size]
-        normal_val = normal_samples[normal_train_size:normal_train_size + normal_val_size]
-        normal_test = normal_samples[normal_train_size + normal_val_size:]
-        
+        normal_val = normal_samples[
+            normal_train_size : normal_train_size + normal_val_size
+        ]
+        normal_test = normal_samples[normal_train_size + normal_val_size :]
+
         train_data = pneumonia_train + normal_train
         val_data = pneumonia_val + normal_val
         test_data = pneumonia_test + normal_test
@@ -119,13 +129,9 @@ class PneumoniaDataModule(LightningDataModule):
             train_data, transform=self.train_transform
         )
 
-        self.val_dataset = PneumoniaDataSet(
-            val_data, transform=self.val_transform
-        )
+        self.val_dataset = PneumoniaDataSet(val_data, transform=self.val_transform)
 
-        self.test_dataset = PneumoniaDataSet(
-            test_data, transform=self.test_transform
-        )
+        self.test_dataset = PneumoniaDataSet(test_data, transform=self.test_transform)
 
     def train_dataloader(self):
         return DataLoader(
