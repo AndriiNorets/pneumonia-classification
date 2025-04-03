@@ -21,13 +21,13 @@ class PneumoniaResNet(LightningModule):
 
         self.learning_rate = learning_rate
         self.criterion = nn.CrossEntropyLoss(
-            weight=torch.tensor([1.35, 3.85]), label_smoothing=0.1
+            weight=torch.tensor([1.37, 3.70]), label_smoothing=0.1
         )
 
         self.train_acc = Accuracy(task="binary")
         self.val_acc = Accuracy(task="binary")
         self.test_acc = Accuracy(task="binary")
-
+        
         self.train_f1 = F1Score(task="binary")
         self.val_f1 = F1Score(task="binary")
         self.test_f1 = F1Score(task="binary")
@@ -40,6 +40,10 @@ class PneumoniaResNet(LightningModule):
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
 
+        preds = torch.argmax(y_hat, dim=1)
+        self.train_acc.update(preds, y)
+        self.train_f1.update(preds, y)
+        
         self.log("train_loss", loss, on_epoch=True, prog_bar=True, logger=True)
         self.log("train_acc", self.train_acc, on_epoch=True, prog_bar=True, logger=True)
         self.log("train_f1", self.train_f1, on_epoch=True, prog_bar=True, logger=True)
@@ -50,6 +54,10 @@ class PneumoniaResNet(LightningModule):
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
 
+        preds = torch.argmax(y_hat, dim=1)
+        self.val_acc.update(preds, y)
+        self.val_f1.update(preds, y)
+
         self.log("val_loss", loss, on_epoch=True, prog_bar=True)
         self.log("val_acc", self.val_acc, on_epoch=True, prog_bar=True)
         self.log("val_f1", self.val_f1, on_epoch=True, prog_bar=True)
@@ -59,6 +67,11 @@ class PneumoniaResNet(LightningModule):
         x, y = batch
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
+
+        preds = torch.argmax(y_hat, dim=1)
+        self.test_acc.update(preds, y)
+        self.test_f1.update(preds, y)
+
         self.log("test_loss", loss)
         self.log("test_acc", self.test_acc, on_epoch=True)
         self.log("test_f1", self.test_f1, on_epoch=True)
