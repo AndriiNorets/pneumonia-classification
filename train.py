@@ -11,19 +11,6 @@ from models.vgg16.vgg16 import PneumoniaVGG16
 
 wandb.login()
 
-# train_transform = transforms.Compose(
-#     [
-#         transforms.Resize(256),
-#         transforms.RandomCrop(224),
-#         transforms.RandomHorizontalFlip(),
-#         transforms.RandomVerticalFlip(p=0.2),
-#         transforms.RandomRotation(10),  # Reduced from 15
-#         transforms.ColorJitter(brightness=0.1, contrast=0.1),  # Reduced intensity
-#         transforms.ToTensor(),
-#         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
-#         transforms.RandomErasing(p=0.1, scale=(0.02, 0.1)),  # Added
-#     ]
-# )
 train_transform = transforms.Compose(
     [
         transforms.Resize(256),
