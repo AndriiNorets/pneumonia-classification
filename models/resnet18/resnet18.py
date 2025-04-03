@@ -15,15 +15,19 @@ class PneumoniaResNet(LightningModule):
             nn.Linear(self.model.fc.in_features, 512),
             nn.BatchNorm1d(512),
             nn.ReLU(),
-            nn.Dropout(0.2),  # Reduced from 0.5
-            nn.Linear(512, num_classes),
+            nn.Dropout(0.2),
+            nn.Linear(512, 1),  # Single output neuron (for BCE)
+            nn.Sigmoid(),  # Sigmoid to output probabilities [0, 1]
         )
 
         self.learning_rate = learning_rate
-        self.criterion = nn.CrossEntropyLoss(
-            weight=torch.tensor([1.85, 0.69]),
-            label_smoothing=0.1,  # [1.37, 3.70]
-        )
+        # self.criterion = nn.CrossEntropyLoss(
+        #     weight=torch.tensor([1.85, 0.69]),
+        #     label_smoothing=0.1,  # [1.37, 3.70]
+        # )
+
+        self.class_weights = torch.tensor([1.85, 0.69])  # [normal, pneumonia]
+        self.label_smoothing = 0.1
 
         self.train_acc = Accuracy(task="binary")
         self.val_acc = Accuracy(task="binary")
@@ -36,12 +40,17 @@ class PneumoniaResNet(LightningModule):
     def forward(self, x):
         return self.model(x)
 
+    def _bce_loss(self, y_hat, y):
+        smoothed_y = y * (1 - self.label_smoothing) + 0.5 * self.label_smoothing
+        weights = self.class_weights[1] * y + self.class_weights[0] * (1 - y)
+        return F.binary_cross_entropy(y_hat.squeeze(), smoothed_y.float(), weight=weights)
+
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
-        loss = self.criterion(y_hat, y)
+        loss = self._bce_loss(y_hat, y)
 
-        preds = torch.argmax(y_hat, dim=1)
+        preds = (y_hat.squeeze() > 0.5).long() 
         self.train_acc.update(preds, y)
         self.train_f1.update(preds, y)
 
@@ -53,9 +62,9 @@ class PneumoniaResNet(LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
-        loss = self.criterion(y_hat, y)
+        loss = self._bce_loss(y_hat, y)
 
-        preds = torch.argmax(y_hat, dim=1)
+        preds = (y_hat.squeeze() > 0.5).long()
         self.val_acc.update(preds, y)
         self.val_f1.update(preds, y)
 
@@ -67,9 +76,9 @@ class PneumoniaResNet(LightningModule):
     def test_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
-        loss = self.criterion(y_hat, y)
+        loss = self._bce_loss(y_hat, y)
 
-        preds = torch.argmax(y_hat, dim=1)
+        preds = (y_hat.squeeze() > 0.5).long() 
         self.test_acc.update(preds, y)
         self.test_f1.update(preds, y)
 
