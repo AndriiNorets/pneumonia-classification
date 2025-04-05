@@ -19,7 +19,6 @@ class PneumoniaResNet(LightningModule):
             nn.Linear(512, num_classes),
 
         )
-        
 
         self.learning_rate = learning_rate
         self.criterion = nn.CrossEntropyLoss(
