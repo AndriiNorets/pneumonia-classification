@@ -15,15 +15,14 @@ class PneumoniaResNet(LightningModule):
             nn.Linear(self.model.fc.in_features, 512),
             nn.BatchNorm1d(512),
             nn.ReLU(),
-            nn.Dropout(0.2),  
+            nn.Dropout(0.2),
             nn.Linear(512, num_classes),
-
         )
 
         self.learning_rate = learning_rate
         self.criterion = nn.CrossEntropyLoss(
             weight=torch.tensor([1.85, 0.69]),
-            label_smoothing=0.1,  
+            label_smoothing=0.1,
         )
 
         self.learning_rate = learning_rate
