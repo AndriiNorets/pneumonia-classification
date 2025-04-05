@@ -9,6 +9,7 @@ __pycache__/
 # Project folders and files
 dataset/data/
 checkpoints/
+test_samples/
 
 # Distribution / packaging
 .Python

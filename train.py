@@ -15,13 +15,9 @@ train_transform = transforms.Compose(
     [
         transforms.Resize(256),
         transforms.RandomCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(p=0.2),
-        transforms.RandomRotation(10),  # Reduced from 15
-        transforms.ColorJitter(brightness=0.1, contrast=0.1),  # Reduced intensity
+        transforms.RandomHorizontalFlip(),  # Most impactful augmentation
         transforms.ToTensor(),
         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
-        transforms.RandomErasing(p=0.1, scale=(0.02, 0.1)),  # Added
     ]
 )
 
@@ -56,7 +52,7 @@ checkpoint_callback = ModelCheckpoint(
 )
 
 early_stop_callback = EarlyStopping(
-    monitor="val_loss", patience=20, mode="min", verbose=True, min_delta=0.005
+    monitor="val_loss", patience=100, mode="min", verbose=True, min_delta=0.005
 )
 
 wandb_logger = WandbLogger(

@@ -15,14 +15,17 @@ class PneumoniaResNet(LightningModule):
             nn.Linear(self.model.fc.in_features, 512),
             nn.BatchNorm1d(512),
             nn.ReLU(),
-            nn.Dropout(0.2),  # Reduced from 0.5
+            nn.Dropout(0.2),
             nn.Linear(512, num_classes),
         )
 
         self.learning_rate = learning_rate
         self.criterion = nn.CrossEntropyLoss(
-            weight=torch.tensor([1.35, 3.85]), label_smoothing=0.1
+            weight=torch.tensor([1.85, 0.69]),
+            label_smoothing=0.1,
         )
+
+        self.learning_rate = learning_rate
 
         self.train_acc = Accuracy(task="binary")
         self.val_acc = Accuracy(task="binary")
@@ -40,6 +43,10 @@ class PneumoniaResNet(LightningModule):
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
 
+        preds = torch.argmax(y_hat, dim=1)
+        self.train_acc.update(preds, y)
+        self.train_f1.update(preds, y)
+
         self.log("train_loss", loss, on_epoch=True, prog_bar=True, logger=True)
         self.log("train_acc", self.train_acc, on_epoch=True, prog_bar=True, logger=True)
         self.log("train_f1", self.train_f1, on_epoch=True, prog_bar=True, logger=True)
@@ -50,6 +57,10 @@ class PneumoniaResNet(LightningModule):
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
 
+        preds = torch.argmax(y_hat, dim=1)
+        self.val_acc.update(preds, y)
+        self.val_f1.update(preds, y)
+
         self.log("val_loss", loss, on_epoch=True, prog_bar=True)
         self.log("val_acc", self.val_acc, on_epoch=True, prog_bar=True)
         self.log("val_f1", self.val_f1, on_epoch=True, prog_bar=True)
@@ -59,6 +70,11 @@ class PneumoniaResNet(LightningModule):
         x, y = batch
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
+
+        preds = torch.argmax(y_hat, dim=1)
+        self.test_acc.update(preds, y)
+        self.test_f1.update(preds, y)
+
         self.log("test_loss", loss)
         self.log("test_acc", self.test_acc, on_epoch=True)
         self.log("test_f1", self.test_f1, on_epoch=True)
