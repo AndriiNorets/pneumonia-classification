@@ -7,19 +7,76 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from pytorch_lightning import LightningModule
 
 
-class PneumoniaResNet(LightningModule):
-    def __init__(self, num_classes=2, learning_rate=3e-4):
+class CNNModel(LightningModule):
+    def __init__(
+        self, input_channels=3, num_features=32, num_classes=2, learning_rate=3e-4
+    ):
         super().__init__()
-        self.model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
-        self.model.fc = nn.Sequential(
-            nn.Linear(self.model.fc.in_features, 512),
-            nn.BatchNorm1d(512),
+        self.save_hyperparameters()
+
+        self.layer1 = nn.Sequential(
+            nn.Conv2d(
+                input_channels=self.hparams.input_channels,
+                out_channels=self.hparams.num_features,
+                kernel_size=3,
+                padding=1,
+            ),
             nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(512, num_classes),
+            nn.BatchNorm2d(self.hparams.num_features),
+            nn.MaxPool2d(kernel_size=2, stride=2),
         )
 
-        self.learning_rate = learning_rate
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(
+                input_channels=self.hparams.num_features,
+                out_channels=self.hparams.num_features * 2,
+                kernel_size=3,
+                padding=1,
+            ),
+            nn.ReLU(),
+            nn.BatchNorm2d(self.hparams.num_features * 2),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(
+                input_channels=self.hparams.num_features * 2,
+                out_channels=self.hparams.num_features * 2 * 2,
+                kernel_size=3,
+                padding=1,
+            ),
+            nn.ReLU(),
+            nn.BatchNorm2d(self.hparams.num_features * 2 * 2),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+
+        self.layer4 = nn.Sequential(
+            nn.Conv2d(
+                input_channels=self.hparams.num_features * 2 * 2,
+                out_channels=self.hparams.num_features * 2 * 2 * 2,
+                kernel_size=3,
+                padding=1,
+            ),
+            nn.ReLU(),
+            nn.BatchNorm2d(self.hparams.num_features * 2 * 2 * 2),
+            nn.MaxPool2d(kernel_size=2, stride=2),
+        )
+
+        self._feature_size = self._get_feature_size(
+            (self.hparams.input_channels, 224, 224)
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(self._feature_size, num_features * 2 * 2 * 2 * 2),
+            nn.BatchNorm1d(self.hparams.num_features * 2 * 2 * 2 * 2),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(
+                self.hparams.num_features * 2 * 2 * 2 * 2, self.hparams.num_classes
+            ),
+        )
+
         self.criterion = nn.CrossEntropyLoss(
             weight=torch.tensor([1.85, 0.69]),
             label_smoothing=0.1,
@@ -35,8 +92,20 @@ class PneumoniaResNet(LightningModule):
         self.val_f1 = F1Score(task="binary")
         self.test_f1 = F1Score(task="binary")
 
+    def _get_feature_size(self, shape):
+        dummy_input = torch.zeros(1, *shape)
+        x = self.layer1(dummy_input)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        return int(torch.numel(x) / x.shape[0])
+
     def forward(self, x):
-        return self.model(x)
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+        return self.classifier(x)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -83,7 +152,7 @@ class PneumoniaResNet(LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(
             self.parameters(),
-            lr=3e-4,
+            lr=self.hparams.learning_rate,
             weight_decay=0.01,
             eps=1e-8,
         )
