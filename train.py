@@ -6,6 +6,7 @@ from torchvision import transforms
 
 from dataset.datamodule import PneumoniaDataModule
 from models.resnet18.resnet18 import PneumoniaResNet
+from models.cnn.cnn import CNNModel
 from models.vgg16.vgg16 import PneumoniaVGG16
 
 
@@ -40,8 +41,14 @@ data_module = PneumoniaDataModule(
     num_workers=4,
 )
 
-model = PneumoniaResNet(num_classes=2)
+# MODELS---------
+
+# model = PneumoniaResNet(num_classes=2)
+
 # model = PneumoniaVGG16(num_classes=2)
+
+model = CNNModel(input_channels=3, num_features=32, num_classes=2, learning_rate=3e-4)
+
 
 checkpoint_callback = ModelCheckpoint(
     monitor="val_loss",
@@ -57,7 +64,9 @@ early_stop_callback = EarlyStopping(
 
 wandb_logger = WandbLogger(
     project="pneumonia-classification",
-    name="resnet18",
+    # name="resnet18",
+    # name="vgg16",
+    name="cnn",
     log_model="all",
     save_dir="./wandb_logs",
 )
