@@ -66,7 +66,7 @@ wandb_logger = WandbLogger(
     # name="resnet18",
     # name="vgg16",
     # name="cnn",
-    name="ÿolo11l",
+    name="yolo11l",
     log_model="all",
     save_dir="./wandb_logs",
 )
