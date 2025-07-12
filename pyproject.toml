@@ -19,6 +19,7 @@ omegaconf = "^2.3.0"
 structlog = "^25.2.0"
 wandb = "^0.19.8"
 datasets = "^3.6.0"
+ultralytics = "^8.3.165"
 
 
 [build-system]

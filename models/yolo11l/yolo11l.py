@@ -1,29 +1,23 @@
 import torch
 import torch.nn as nn
 from torchmetrics import Accuracy, F1Score
-from torchvision import models
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from pytorch_lightning import LightningModule
+from ultralytics import YOLO
 
 
-class PneumoniaResNet(LightningModule):
+class PneumoniaYOLO11L(LightningModule):
     def __init__(self, num_classes=2, learning_rate=3e-4):
         super().__init__()
-        self.model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
-        self.model.fc = nn.Sequential(
-            nn.Linear(self.model.fc.in_features, 512),
-            nn.BatchNorm1d(512),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(512, num_classes),
-        )
+        self.model = YOLO(model="yolo11l-cls.pt")
+        in_features = self.model.model[-1].linear.in_features
+        self.model.model[-1].linear = nn.Linear(in_features, num_classes)
 
+        self.learning_rate = learning_rate
         self.criterion = nn.CrossEntropyLoss(
             weight=torch.tensor([1.85, 0.69]),
             label_smoothing=0.1,
         )
-
-        self.learning_rate = learning_rate
 
         self.train_acc = Accuracy(task="binary")
         self.val_acc = Accuracy(task="binary")

@@ -5,10 +5,7 @@ import wandb
 from torchvision import transforms
 
 from dataset.datamodule import PneumoniaDataModule
-from models.resnet18.resnet18 import PneumoniaResNet
-from models.cnn.cnn import CNNModel
-from models.vgg16.vgg16 import PneumoniaVGG16
-
+from models.yolo11l.yolo11l import PneumoniaYOLO11L
 
 wandb.login()
 
@@ -16,7 +13,7 @@ train_transform = transforms.Compose(
     [
         transforms.Resize(256),
         transforms.RandomCrop(224),
-        transforms.RandomHorizontalFlip(),  # Most impactful augmentation
+        transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
     ]
@@ -47,7 +44,9 @@ data_module = PneumoniaDataModule(
 
 # model = PneumoniaVGG16(num_classes=2)
 
-model = CNNModel(input_channels=3, num_features=32, num_classes=2, learning_rate=3e-4)
+# model = CNNModel(input_channels=3, num_features=32, num_classes=2, learning_rate=3e-4)
+
+model = PneumoniaYOLO11L(num_classes=2)
 
 
 checkpoint_callback = ModelCheckpoint(
@@ -66,7 +65,8 @@ wandb_logger = WandbLogger(
     project="pneumonia-classification",
     # name="resnet18",
     # name="vgg16",
-    name="cnn",
+    # name="cnn",
+    name="ÿolo11l",
     log_model="all",
     save_dir="./wandb_logs",
 )

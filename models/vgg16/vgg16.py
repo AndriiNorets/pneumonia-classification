@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from torchvision import models
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from pytorch_lightning import LightningModule
