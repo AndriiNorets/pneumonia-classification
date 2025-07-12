@@ -9,7 +9,7 @@ from ultralytics import YOLO
 class PneumoniaYOLO11L(LightningModule):
     def __init__(self, num_classes=2, learning_rate=3e-4):
         super().__init__()
-        self.model = YOLO(model="yolo11l-cls.pt")
+        self.model = YOLO(model="checkpoints/yolo11l-cls.pt")
         in_features = self.model.model[-1].linear.in_features
         self.model.model[-1].linear = nn.Linear(in_features, num_classes)
 
