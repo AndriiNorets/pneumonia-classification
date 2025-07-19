@@ -1,6 +1,5 @@
 import pytest
 import torch
-from unittest.mock import patch, MagicMock
 from dataset.datamodule import PneumoniaDataModule
 from torchvision.transforms import v2
 import structlog
