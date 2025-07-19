@@ -5,6 +5,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from pytorch_lightning import LightningModule
 from ultralytics import YOLO
 
+
 # A clear, standard name for the class
 class PneumoniaYOLO11L(LightningModule):
     def __init__(self, num_classes=2, learning_rate=3e-4):
@@ -23,7 +24,6 @@ class PneumoniaYOLO11L(LightningModule):
         in_features = original_head.linear.in_features
         self.model.model[-1].linear = nn.Linear(in_features, num_classes)
         # --- End of Fix #2 ---
-
 
         self.criterion = nn.CrossEntropyLoss(
             weight=torch.tensor([1.85, 0.69]),
@@ -89,6 +89,13 @@ class PneumoniaYOLO11L(LightningModule):
         return loss
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.hparams.learning_rate, weight_decay=0.01)
-        scheduler = {"scheduler": ReduceLROnPlateau(optimizer, patience=8, factor=0.1, min_lr=1e-6, verbose=True), "monitor": "val_loss"}
+        optimizer = torch.optim.AdamW(
+            self.parameters(), lr=self.hparams.learning_rate, weight_decay=0.01
+        )
+        scheduler = {
+            "scheduler": ReduceLROnPlateau(
+                optimizer, patience=8, factor=0.1, min_lr=1e-6, verbose=True
+            ),
+            "monitor": "val_loss",
+        }
         return [optimizer], [scheduler]
