@@ -20,6 +20,8 @@ structlog = "^25.2.0"
 wandb = "^0.19.8"
 datasets = "^3.6.0"
 ultralytics = "^8.3.165"
+transformers = "^4.54.0"
+scikit-learn = "^1.7.1"
 
 
 [build-system]

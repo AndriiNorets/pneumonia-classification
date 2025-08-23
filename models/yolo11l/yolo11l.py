@@ -6,24 +6,17 @@ from pytorch_lightning import LightningModule
 from ultralytics import YOLO
 
 
-# A clear, standard name for the class
 class PneumoniaYOLO11L(LightningModule):
     def __init__(self, num_classes=2, learning_rate=3e-4):
         super().__init__()
         self.save_hyperparameters()
 
-        # --- FIX #1: Use the official YOLOv8 model and a temporary loader ---
-        # This prevents the 'hijacking' behavior.
         yolo_loader = YOLO("checkpoints/yolo11l-cls.pt")
         self.model = yolo_loader.model
-        # --- End of Fix #1 ---
 
-        # --- FIX #2: This code now works because we used the correct model ---
-        # The structure of `self.model` is now correct.
         original_head = self.model.model[-1]
         in_features = original_head.linear.in_features
         self.model.model[-1].linear = nn.Linear(in_features, num_classes)
-        # --- End of Fix #2 ---
 
         self.criterion = nn.CrossEntropyLoss(
             weight=torch.tensor([1.85, 0.69]),
@@ -42,9 +35,8 @@ class PneumoniaYOLO11L(LightningModule):
 
     def training_step(self, batch, batch_idx):
         x, y = batch
-        # --- FIX #3: Unpack the tuple output ---
         y_hat = self(x)[0]
-        # --- End of Fix #3 ---
+
         loss = self.criterion(y_hat, y)
 
         preds = torch.argmax(y_hat, dim=1)
@@ -58,9 +50,8 @@ class PneumoniaYOLO11L(LightningModule):
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
-        # --- FIX #3: Unpack the tuple output ---
         y_hat = self(x)[0]
-        # --- End of Fix #3 ---
+
         loss = self.criterion(y_hat, y)
 
         preds = torch.argmax(y_hat, dim=1)
@@ -74,9 +65,9 @@ class PneumoniaYOLO11L(LightningModule):
 
     def test_step(self, batch, batch_idx):
         x, y = batch
-        # --- FIX #3: Unpack the tuple output ---
+
         y_hat = self(x)[0]
-        # --- End of Fix #3 ---
+
         loss = self.criterion(y_hat, y)
 
         preds = torch.argmax(y_hat, dim=1)

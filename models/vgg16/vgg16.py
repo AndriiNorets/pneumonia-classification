@@ -10,9 +10,8 @@ class PneumoniaVGG16(LightningModule):
         super().__init__()
         self.model = models.vgg16(weights=models.VGG16_Weights.DEFAULT)
 
-        # Replace classifier head (original VGG16 has 1000-class output)
         self.model.classifier = nn.Sequential(
-            nn.Linear(512 * 7 * 7, 4096),  # VGG16 flattened features
+            nn.Linear(512 * 7 * 7, 4096),
             nn.ReLU(),
             nn.Dropout(0.5),
             nn.Linear(4096, 4096),
@@ -23,7 +22,7 @@ class PneumoniaVGG16(LightningModule):
 
         self.learning_rate = learning_rate
         self.criterion = nn.CrossEntropyLoss(
-            weight=torch.tensor([1.35, 3.85]),  # Class weights
+            weight=torch.tensor([1.35, 3.85]),
             label_smoothing=0.1,
         )
 

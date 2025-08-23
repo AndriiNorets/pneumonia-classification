@@ -9,6 +9,7 @@ from models.yolo11l.yolo11l import PneumoniaYOLO11L
 
 wandb.login()
 
+# Resnet18, VGG16, CNN, YOLO11L augmentation
 train_transform = transforms.Compose(
     [
         transforms.Resize(256),
@@ -25,6 +26,30 @@ val_transform = transforms.Compose(
         transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+    ]
+)
+
+# CLIP augmentation
+train_transform = transforms.Compose(
+    [
+        transforms.Resize((224, 224)),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            mean=[0.48145466, 0.4578275, 0.40821073],
+            std=[0.26862954, 0.26130258, 0.27577711],
+        ),
+    ]
+)
+
+val_transform = transforms.Compose(
+    [
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            mean=[0.48145466, 0.4578275, 0.40821073],
+            std=[0.26862954, 0.26130258, 0.27577711],
+        ),
     ]
 )
 
