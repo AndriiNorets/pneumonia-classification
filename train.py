@@ -5,39 +5,44 @@ import wandb
 from torchvision import transforms
 
 from dataset.datamodule import PneumoniaDataModule
+from models.resnet18.resnet18 import PneumoniaResNet
+from models.vgg16.vgg16 import PneumoniaVGG16
 from models.yolo11l.yolo11l import PneumoniaYOLO11L
+from models.cnn.cnn import CNNModel
+from models.embedding_classifier.embedding_classifier import EmbeddingClassifier
 
 wandb.login()
 
-# Resnet18, VGG16, CNN, YOLO11L augmentation
+# Resnet18, VGG16, CNN, YOLO11L augmentations
+# train_transform = transforms.Compose(
+#     [
+#         transforms.Resize(256),
+#         transforms.RandomCrop(224),
+#         transforms.RandomHorizontalFlip(),
+#         transforms.ToTensor(),
+#         transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
+#     ]
+# )
+
+# val_transform = transforms.Compose(
+#     [
+#         transforms.Resize(256),
+#         transforms.CenterCrop(224),
+#         transforms.ToTensor(),
+#         transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+#     ]
+# )
+
+# DINOV2 augmentations
 train_transform = transforms.Compose(
     [
-        transforms.Resize(256),
-        transforms.RandomCrop(224),
+        transforms.RandomResizedCrop(size=(224, 224), scale=(0.8, 1.0), antialias=True),
         transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5]),
-    ]
-)
-
-val_transform = transforms.Compose(
-    [
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-    ]
-)
-
-# CLIP augmentation
-train_transform = transforms.Compose(
-    [
-        transforms.Resize((224, 224)),
-        transforms.RandomHorizontalFlip(),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2),
         transforms.ToTensor(),
         transforms.Normalize(
-            mean=[0.48145466, 0.4578275, 0.40821073],
-            std=[0.26862954, 0.26130258, 0.27577711],
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225],
         ),
     ]
 )
@@ -47,8 +52,8 @@ val_transform = transforms.Compose(
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
         transforms.Normalize(
-            mean=[0.48145466, 0.4578275, 0.40821073],
-            std=[0.26862954, 0.26130258, 0.27577711],
+            mean=[0.485, 0.456, 0.406],
+            std=[0.229, 0.224, 0.225],
         ),
     ]
 )
@@ -65,13 +70,15 @@ data_module = PneumoniaDataModule(
 
 # MODELS---------
 
-# model = PneumoniaResNet(num_classes=2)
+# model = PneumoniaResNet(num_classes=2, learning_rate=3e-4)
 
-# model = PneumoniaVGG16(num_classes=2)
+# model = PneumoniaVGG16(num_classes=2, learning_rate=3e-4)
 
 # model = CNNModel(input_channels=3, num_features=32, num_classes=2, learning_rate=3e-4)
 
-model = PneumoniaYOLO11L(num_classes=2)
+# model = PneumoniaYOLO11L(num_classes=2, learning_rate=3e-4)
+
+model = EmbeddingClassifier(model_name = "facebook/dinov2-base", num_classes = 2, learning_rate = 1e-3)
 
 
 checkpoint_callback = ModelCheckpoint(
@@ -83,7 +90,7 @@ checkpoint_callback = ModelCheckpoint(
 )
 
 early_stop_callback = EarlyStopping(
-    monitor="val_loss", patience=100, mode="min", verbose=True, min_delta=0.005
+    monitor="val_loss", patience=15, mode="min", verbose=True, min_delta=0.005
 )
 
 wandb_logger = WandbLogger(
@@ -91,7 +98,8 @@ wandb_logger = WandbLogger(
     # name="resnet18",
     # name="vgg16",
     # name="cnn",
-    name="yolo11l",
+    # name="yolo11l",
+    name="dinov2",
     log_model="all",
     save_dir="./wandb_logs",
 )
