@@ -29,7 +29,7 @@ class EmbeddingClassifier(LightningModule):
             nn.Linear(self.embedding_size, 512),
             nn.GELU(),
             nn.Dropout(0.25),
-            nn.Linear(512, self.hparams.num_classes),
+            nn.Linear(512, self.hparams.num_classes), 
         )
 
         self.criterion = nn.CrossEntropyLoss(weight=torch.tensor([1.85, 0.69]))
@@ -105,13 +105,13 @@ class EmbeddingClassifier(LightningModule):
         optimizer = torch.optim.AdamW(
             self.classifier_head.parameters(),
             lr=self.hparams.learning_rate,
-            weight_decay=0.01,
+            weight_decay=0.05,
         )
 
         scheduler = {
             "scheduler": ReduceLROnPlateau(
-                optimizer, mode="max", patience=5, factor=0.2, verbose=True
+                optimizer, mode="min", patience=5, factor=0.7, verbose=True
             ),
-            "monitor": "val_f1",
+            "monitor": "val_loss",
         }
         return [optimizer], [scheduler]
