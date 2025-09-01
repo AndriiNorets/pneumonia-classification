@@ -105,7 +105,7 @@ class EmbeddingClassifier(LightningModule):
         optimizer = torch.optim.AdamW(
             self.classifier_head.parameters(),
             lr=self.hparams.learning_rate,
-            weight_decay=0.05,
+            weight_decay=0.1,
         )
 
         scheduler = {
