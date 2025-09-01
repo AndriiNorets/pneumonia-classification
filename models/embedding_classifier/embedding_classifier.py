@@ -29,7 +29,7 @@ class EmbeddingClassifier(LightningModule):
             nn.Linear(self.embedding_size, 512),
             nn.GELU(),
             nn.Dropout(0.25),
-            nn.Linear(512, self.hparams.num_classes), 
+            nn.Linear(512, self.hparams.num_classes),
         )
 
         self.criterion = nn.CrossEntropyLoss(weight=torch.tensor([1.85, 0.69]))

@@ -78,7 +78,9 @@ data_module = PneumoniaDataModule(
 
 # model = PneumoniaYOLO11L(num_classes=2, learning_rate=3e-4)
 
-model = EmbeddingClassifier(model_name = "facebook/dinov2-base", num_classes = 2, learning_rate = 1e-3 ) # 1e -4
+model = EmbeddingClassifier(
+    model_name="facebook/dinov2-base", num_classes=2, learning_rate=1e-3
+)  # 1e -4
 
 
 checkpoint_callback = ModelCheckpoint(
@@ -92,7 +94,7 @@ checkpoint_callback = ModelCheckpoint(
 early_stop_callback = EarlyStopping(
     monitor="val_loss", patience=20, mode="min", verbose=True, min_delta=0.005
 )
- 
+
 wandb_logger = WandbLogger(
     project="pneumonia-classification",
     # name="resnet18",

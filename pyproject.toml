@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pneumonia-detection"
-version = "0.6.0"
+version = "0.6.1"
 description = "A project to classify pneumonia from chest X-ray images."
 authors = ["Andrii Norets <104683293+KabinetFnsv@users.noreply.github.com>"]
 readme = "README.md"
