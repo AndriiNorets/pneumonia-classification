@@ -12,6 +12,7 @@ checkpoints/
 test_samples/
 
 # Distribution / packaging
+.vscode/
 .Python
 build/
 develop-eggs/
