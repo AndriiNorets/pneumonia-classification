@@ -1,0 +1,13 @@
+# @package model
+
+_target_: models.embedding_classifier.embedding_classifier.EmbeddingClassifier
+name: "dinov2"
+
+model_name: "facebook/dinov2-base"
+num_classes: 2
+head_hidden_features: 512
+class_weights: [1.85, 0.69]
+
+learning_rate: 1e-3
+dropout: 0.25
+weight_decay: 0.1

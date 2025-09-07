@@ -1,0 +1,15 @@
+# @package _global_
+
+defaults:
+  - data: pneumonia
+  - model: dinov2
+  - trainer: default
+  - _self_
+
+project_name: "pneumonia-classification"
+
+run_name: "${model.name}-lr_${model.learning_rate}"
+
+hydra:
+  run:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}

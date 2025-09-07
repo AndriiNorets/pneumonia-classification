@@ -80,8 +80,7 @@ data_module = PneumoniaDataModule(
 
 model = EmbeddingClassifier(
     model_name="facebook/dinov2-base", num_classes=2, learning_rate=1e-3
-)  # 1e -4
-
+) 
 
 checkpoint_callback = ModelCheckpoint(
     monitor="val_loss",
