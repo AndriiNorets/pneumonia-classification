@@ -8,7 +8,7 @@ defaults:
 
 project_name: "pneumonia-classification"
 
-run_name: "${model.name}-lr_${model.learning_rate}"
+run_name: "${model.model_name}-lr_${model.learning_rate}"
 
 hydra:
   run:

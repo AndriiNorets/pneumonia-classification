@@ -87,7 +87,7 @@ model = hydra.utils.instantiate(cfg.model)
 checkpoint_callback = ModelCheckpoint(
     monitor="val_loss",
     dirpath="./checkpoints",
-    filename=f"{cfg.model.name}-best-{{epoch:02d}}-{{val_f1:.4f}}",
+    filename=f"{cfg.model.model_name.replace('/', '_')}-best-{{epoch:02d}}-{{val_f1:.4f}}",
     save_top_k=3,
     mode="min",
 )

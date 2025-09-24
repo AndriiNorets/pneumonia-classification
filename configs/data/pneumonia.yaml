@@ -1,6 +1,5 @@
 # @package data
 
-name: "pneumonia"
 dataset_link: "hf-vision/chest-xray-pneumonia"
 data_dir: "./dataset/data"
 batch_size: 16
