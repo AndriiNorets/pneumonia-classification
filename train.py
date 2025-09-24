@@ -1,8 +1,11 @@
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers import WandbLogger
-import wandb
 from torchvision import transforms
+import wandb
+import hydra
+from hydra import initialize, compose
+from omegaconf import OmegaConf
 
 from dataset.datamodule import PneumoniaDataModule
 from models.resnet18.resnet18 import PneumoniaResNet
@@ -10,6 +13,9 @@ from models.vgg16.vgg16 import PneumoniaVGG16
 from models.yolo11l.yolo11l import PneumoniaYOLO11L
 from models.cnn.cnn import CNNModel
 from models.embedding_classifier.embedding_classifier import EmbeddingClassifier
+
+initialize(config_path="configs", version_base=None)
+cfg = compose(config_name="config")
 
 wandb.login()
 
@@ -59,14 +65,12 @@ val_transform = transforms.Compose(
 )
 
 data_module = PneumoniaDataModule(
-    dataset_link="hf-vision/chest-xray-pneumonia",
+    **cfg.data,
     train_transform=train_transform,
     val_transform=val_transform,
     test_transform=val_transform,
-    data_dir="./dataset/data",
-    batch_size=16,
-    num_workers=4,
 )
+
 
 # MODELS---------
 
@@ -78,14 +82,12 @@ data_module = PneumoniaDataModule(
 
 # model = PneumoniaYOLO11L(num_classes=2, learning_rate=3e-4)
 
-model = EmbeddingClassifier(
-    model_name="facebook/dinov2-base", num_classes=2, learning_rate=1e-3
-) 
+model = hydra.utils.instantiate(cfg.model)
 
 checkpoint_callback = ModelCheckpoint(
     monitor="val_loss",
     dirpath="./checkpoints",
-    filename="pneumonia-resnet-{epoch:02d}-{val_loss:.2f}",
+    filename=f"{cfg.model.name}-best-{{epoch:02d}}-{{val_f1:.4f}}",
     save_top_k=3,
     mode="min",
 )
@@ -95,26 +97,28 @@ early_stop_callback = EarlyStopping(
 )
 
 wandb_logger = WandbLogger(
-    project="pneumonia-classification",
-    # name="resnet18",
-    # name="vgg16",
-    # name="cnn",
-    # name="yolo11l",
-    name="dinov2",
+    project=cfg.project_name,
+    name=cfg.run_name,
     log_model="all",
     save_dir="./wandb_logs",
 )
 
+# trainer = pl.Trainer(
+#     accelerator="auto",
+#     devices="auto",
+#     max_epochs=100,
+#     callbacks=[checkpoint_callback, early_stop_callback],
+#     logger=wandb_logger,
+#     deterministic=True,
+#     log_every_n_steps=10,
+#     gradient_clip_val=1.0,
+#     accumulate_grad_batches=4,
+# )
+
 trainer = pl.Trainer(
-    accelerator="auto",
-    devices="auto",
-    max_epochs=100,
+    **cfg.trainer,
     callbacks=[checkpoint_callback, early_stop_callback],
     logger=wandb_logger,
-    deterministic=True,
-    log_every_n_steps=10,
-    gradient_clip_val=1.0,
-    accumulate_grad_batches=4,
 )
 
 trainer.fit(model, datamodule=data_module)
