@@ -6,6 +6,8 @@ defaults:
   - trainer: default
   - _self_
 
+mode: debug
+
 project_name: "pneumonia-classification"
 
 run_name: "${model.model_name}-lr_${model.learning_rate}"

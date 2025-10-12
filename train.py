@@ -17,7 +17,6 @@ from models.embedding_classifier.embedding_classifier import EmbeddingClassifier
 initialize(config_path="configs", version_base=None)
 cfg = compose(config_name="config")
 
-wandb.login()
 
 # Resnet18, VGG16, CNN, YOLO11L augmentations
 # train_transform = transforms.Compose(
@@ -85,16 +84,7 @@ data_module = PneumoniaDataModule(
 model = hydra.utils.instantiate(cfg.model)
 
 def debug():    
-    trainer = pl.Trainer(
-        accelerator="auto",
-        devices="auto",
-        max_epochs=1,
-        limit_train_batches=5,
-        limit_val_batches=5,
-        limit_test_batches=5,
-        logger=False, 
-        callbacks=[],   
-    )
+    trainer = pl.Trainer(**cfg.trainer.debug_params)
     
     print("Run fit()...")
     trainer.fit(model, datamodule=data_module)
@@ -105,6 +95,8 @@ def debug():
     print("Debug run complete.")
 
 def train():
+    wandb.login()
+    
     checkpoint_callback = ModelCheckpoint(
         monitor="val_loss",
         dirpath="./checkpoints",
@@ -136,8 +128,14 @@ def train():
 
     wandb.finish()
 
-if __name__ == "__main__":
-    debug()    
+    print("Training run complete! Best model saved at:", checkpoint_callback.best_model_path)
 
-# print("Training complete! Best model saved at:", checkpoint_callback.best_model_path)
+
+if __name__ == "__main__":
+    if cfg.mode == "debug":
+        print("\n--- Running in DEBUG mode")
+        debug()
+    elif cfg.mode == "train":
+        print("\n--- Running in TRAIN mode")
+        train()
  
