@@ -84,47 +84,40 @@ data_module = PneumoniaDataModule(
 
 model = hydra.utils.instantiate(cfg.model)
 
-checkpoint_callback = ModelCheckpoint(
-    monitor="val_loss",
-    dirpath="./checkpoints",
-    filename=f"{cfg.model.model_name.replace('/', '_')}-best-{{epoch:02d}}-{{val_f1:.4f}}",
-    save_top_k=3,
-    mode="min",
-)
+def train():
+    checkpoint_callback = ModelCheckpoint(
+        monitor="val_loss",
+        dirpath="./checkpoints",
+        filename=f"{cfg.model.model_name.replace('/', '_')}-best-{{epoch:02d}}-{{val_f1:.4f}}",
+        save_top_k=3,
+        mode="min",
+    )
 
-early_stop_callback = EarlyStopping(
-    monitor="val_loss", patience=20, mode="min", verbose=True, min_delta=0.005
-)
+    early_stop_callback = EarlyStopping(
+        monitor="val_loss", patience=20, mode="min", verbose=True, min_delta=0.005
+    )
 
-wandb_logger = WandbLogger(
-    project=cfg.project_name,
-    name=cfg.run_name,
-    log_model="all",
-    save_dir="./wandb_logs",
-)
+    wandb_logger = WandbLogger(
+        project=cfg.project_name,
+        name=cfg.run_name,
+        log_model="all",
+        save_dir="./wandb_logs",
+    )
 
-# trainer = pl.Trainer(
-#     accelerator="auto",
-#     devices="auto",
-#     max_epochs=100,
-#     callbacks=[checkpoint_callback, early_stop_callback],
-#     logger=wandb_logger,
-#     deterministic=True,
-#     log_every_n_steps=10,
-#     gradient_clip_val=1.0,
-#     accumulate_grad_batches=4,
-# )
+    trainer = pl.Trainer(
+        **cfg.trainer,
+        callbacks=[checkpoint_callback, early_stop_callback],
+        logger=wandb_logger,
+    )
 
-trainer = pl.Trainer(
-    **cfg.trainer,
-    callbacks=[checkpoint_callback, early_stop_callback],
-    logger=wandb_logger,
-)
+    trainer.fit(model, datamodule=data_module)
 
-trainer.fit(model, datamodule=data_module)
+    trainer.test(model, datamodule=data_module, ckpt_path="best")
 
-trainer.test(model, datamodule=data_module, ckpt_path="best")
+    wandb.finish()
 
-wandb.finish()
+if name == "__main__":
+    train()    
 
 print("Training complete! Best model saved at:", checkpoint_callback.best_model_path)
+ 
