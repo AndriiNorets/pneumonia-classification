@@ -2,7 +2,7 @@
 
 defaults:
   - data: pneumonia
-  - model: dinov2
+  - model: yolo11l
   - trainer: default
   - _self_
 
