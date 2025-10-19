@@ -70,17 +70,6 @@ data_module = PneumoniaDataModule(
     test_transform=val_transform,
 )
 
-
-# MODELS---------
-
-# model = PneumoniaResNet(num_classes=2, learning_rate=3e-4)
-
-# model = PneumoniaVGG16(num_classes=2, learning_rate=3e-4)
-
-# model = CNNModel(input_channels=3, num_features=32, num_classes=2, learning_rate=3e-4)
-
-# model = PneumoniaYOLO11L(num_classes=2, learning_rate=3e-4)
-
 model = hydra.utils.instantiate(cfg.model)
 
 def debug():    
