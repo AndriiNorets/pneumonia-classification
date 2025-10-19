@@ -2,11 +2,11 @@
 
 defaults:
   - data: pneumonia
-  - model: cnn
+  - model: yolo11l
   - trainer: default
   - _self_
 
-mode: debug
+mode: train
 
 project_name: "pneumonia-classification"
 

@@ -170,7 +170,7 @@ class CNNModel(LightningModule):
             "scheduler": ReduceLROnPlateau(
                 optimizer,
                 patience=8,
-                factor=0.1,
+                factor=0.7,
                 min_lr=self.hparams.min_learning_rate,
                 verbose=True,
             ),
