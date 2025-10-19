@@ -86,9 +86,6 @@ model = hydra.utils.instantiate(cfg.model)
 def debug():    
     trainer = pl.Trainer(**cfg.trainer.debug_params)
     
-    print("Run fit()...")
-    trainer.fit(model, datamodule=data_module)
-    
     print("Run test()...")
     trainer.test(model, datamodule=data_module)
     

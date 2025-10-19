@@ -1,0 +1,15 @@
+# @package model
+
+_target_: models.resnet18.resnet18.PneumoniaResNet
+model_name: "resnet18"
+
+num_classes: 2
+learning_rate: 3e-4
+min_learning_rate: 1e-6
+num_features: 512
+dropout: 0.2
+weight_decay: 0.01
+class_weights: [1.85, 0.69]
+eps: 1e-8
+
+ 

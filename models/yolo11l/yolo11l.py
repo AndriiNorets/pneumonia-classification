@@ -12,6 +12,7 @@ class PneumoniaYOLO11L(LightningModule):
         model_name: str, 
         num_classes: int,
         learning_rate: float,
+        min_learning_rate: float,
         weight_decay: float,
         class_weights: List[float],
     ):
@@ -91,7 +92,7 @@ class PneumoniaYOLO11L(LightningModule):
         )
         scheduler = {
             "scheduler": ReduceLROnPlateau(
-                optimizer, patience=8, factor=0.1, min_lr=1e-6, verbose=True
+                optimizer, patience=8, factor=0.1, min_lr=self.hparams.min_learning_rate, verbose=True
             ),
             "monitor": "val_loss",
         }
