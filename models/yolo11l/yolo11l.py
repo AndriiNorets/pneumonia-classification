@@ -4,24 +4,31 @@ from torchmetrics import Accuracy, F1Score
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from pytorch_lightning import LightningModule
 from ultralytics import YOLO
+from typing import List
 
 
 class PneumoniaYOLO11L(LightningModule):
-    def __init__(self, num_classes=2, learning_rate=3e-4):
+    def __init__(
+        self,
+        model_name: str,
+        num_classes: int,
+        learning_rate: float,
+        min_learning_rate: float,
+        weight_decay: float,
+        class_weights: List[float],
+    ):
         super().__init__()
         self.save_hyperparameters()
 
-        yolo_loader = YOLO("checkpoints/yolo11l-cls.pt")
+        yolo_loader = YOLO(f"model_weights/{self.hparams.model_name}.pt")
         self.model = yolo_loader.model
 
         original_head = self.model.model[-1]
         in_features = original_head.linear.in_features
-        self.model.model[-1].linear = nn.Linear(in_features, num_classes)
+        self.model.model[-1].linear = nn.Linear(in_features, self.hparams.num_classes)
 
-        self.criterion = nn.CrossEntropyLoss(
-            weight=torch.tensor([1.85, 0.69]),
-            label_smoothing=0.1,
-        )
+        weights = torch.tensor(self.hparams.class_weights)
+        self.criterion = nn.CrossEntropyLoss(weight=weights)
 
         self.train_acc = Accuracy(task="binary")
         self.val_acc = Accuracy(task="binary")
@@ -81,11 +88,17 @@ class PneumoniaYOLO11L(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(
-            self.parameters(), lr=self.hparams.learning_rate, weight_decay=0.01
+            self.parameters(),
+            lr=self.hparams.learning_rate,
+            weight_decay=self.hparams.weight_decay,
         )
         scheduler = {
             "scheduler": ReduceLROnPlateau(
-                optimizer, patience=8, factor=0.1, min_lr=1e-6, verbose=True
+                optimizer,
+                patience=8,
+                factor=0.7,
+                min_lr=self.hparams.min_learning_rate,
+                verbose=True,
             ),
             "monitor": "val_loss",
         }

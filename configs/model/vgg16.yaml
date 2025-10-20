@@ -1,0 +1,13 @@
+# @package model
+
+_target_: models.vgg16.vgg16.PneumoniaVGG16
+model_name: "vgg16"
+
+num_classes: 2
+learning_rate: 1e-3
+min_learning_rate: 1e-6
+num_features: 512
+dropout: 0.5
+weight_decay: 0.01
+class_weights: [1.85, 0.69]
+eps: 1e-6

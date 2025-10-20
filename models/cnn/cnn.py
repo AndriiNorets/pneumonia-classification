@@ -3,61 +3,75 @@ import torch.nn as nn
 from torchmetrics import Accuracy, F1Score
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from pytorch_lightning import LightningModule
+from typing import List
 
 
 class CNNModel(LightningModule):
     def __init__(
-        self, input_channels=3, num_features=32, num_classes=2, learning_rate=3e-4
+        self,
+        model_name: str,
+        input_channels: int,
+        num_features: int,
+        kernel_size: int,
+        padding: int,
+        stride: int,
+        num_classes: int,
+        dropout: int,
+        learning_rate: float,
+        min_learning_rate: float,
+        weight_decay: float,
+        class_weights: List[float],
+        eps: float,
     ):
         super().__init__()
         self.save_hyperparameters()
 
         self.layer1 = nn.Sequential(
             nn.Conv2d(
-                input_channels=self.hparams.input_channels,
+                in_channels=self.hparams.input_channels,
                 out_channels=self.hparams.num_features,
-                kernel_size=3,
-                padding=1,
+                kernel_size=self.hparams.kernel_size,
+                padding=self.hparams.padding,
             ),
             nn.ReLU(),
             nn.BatchNorm2d(self.hparams.num_features),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.MaxPool2d(kernel_size=2, stride=self.hparams.stride),
         )
 
         self.layer2 = nn.Sequential(
             nn.Conv2d(
-                input_channels=self.hparams.num_features,
+                in_channels=self.hparams.num_features,
                 out_channels=self.hparams.num_features * 2,
-                kernel_size=3,
-                padding=1,
+                kernel_size=self.hparams.kernel_size,
+                padding=self.hparams.padding,
             ),
             nn.ReLU(),
             nn.BatchNorm2d(self.hparams.num_features * 2),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.MaxPool2d(kernel_size=2, stride=self.hparams.stride),
         )
 
         self.layer3 = nn.Sequential(
             nn.Conv2d(
-                input_channels=self.hparams.num_features * 2,
+                in_channels=self.hparams.num_features * 2,
                 out_channels=self.hparams.num_features * 2 * 2,
-                kernel_size=3,
-                padding=1,
+                kernel_size=self.hparams.kernel_size,
+                padding=self.hparams.padding,
             ),
             nn.ReLU(),
             nn.BatchNorm2d(self.hparams.num_features * 2 * 2),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.MaxPool2d(kernel_size=2, stride=self.hparams.stride),
         )
 
         self.layer4 = nn.Sequential(
             nn.Conv2d(
-                input_channels=self.hparams.num_features * 2 * 2,
+                in_channels=self.hparams.num_features * 2 * 2,
                 out_channels=self.hparams.num_features * 2 * 2 * 2,
-                kernel_size=3,
-                padding=1,
+                kernel_size=self.hparams.kernel_size,
+                padding=self.hparams.padding,
             ),
             nn.ReLU(),
             nn.BatchNorm2d(self.hparams.num_features * 2 * 2 * 2),
-            nn.MaxPool2d(kernel_size=2, stride=2),
+            nn.MaxPool2d(kernel_size=2, stride=self.hparams.stride),
         )
 
         self._feature_size = self._get_feature_size(
@@ -66,21 +80,20 @@ class CNNModel(LightningModule):
 
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(self._feature_size, num_features * 2 * 2 * 2 * 2),
+            nn.Linear(self._feature_size, self.hparams.num_features * 2 * 2 * 2 * 2),
             nn.BatchNorm1d(self.hparams.num_features * 2 * 2 * 2 * 2),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(self.hparams.dropout),
             nn.Linear(
                 self.hparams.num_features * 2 * 2 * 2 * 2, self.hparams.num_classes
             ),
         )
 
+        weights = torch.tensor(self.hparams.class_weights)
         self.criterion = nn.CrossEntropyLoss(
-            weight=torch.tensor([1.85, 0.69]),
+            weight=weights,
             label_smoothing=0.1,
         )
-
-        self.learning_rate = learning_rate
 
         self.train_acc = Accuracy(task="binary")
         self.val_acc = Accuracy(task="binary")
@@ -151,15 +164,15 @@ class CNNModel(LightningModule):
         optimizer = torch.optim.AdamW(
             self.parameters(),
             lr=self.hparams.learning_rate,
-            weight_decay=0.01,
-            eps=1e-8,
+            weight_decay=self.hparams.weight_decay,
+            eps=self.hparams.eps,
         )
         scheduler = {
             "scheduler": ReduceLROnPlateau(
                 optimizer,
                 patience=8,
-                factor=0.1,
-                min_lr=1e-6,
+                factor=0.7,
+                min_lr=self.hparams.min_learning_rate,
                 verbose=True,
             ),
             "monitor": "val_loss",

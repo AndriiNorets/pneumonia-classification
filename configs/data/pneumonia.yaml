@@ -1,0 +1,6 @@
+# @package data
+
+dataset_link: "hf-vision/chest-xray-pneumonia"
+data_dir: "./dataset/data"
+batch_size: 16
+num_workers: 4

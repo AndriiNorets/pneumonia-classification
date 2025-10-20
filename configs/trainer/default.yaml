@@ -1,0 +1,20 @@
+# @package trainer
+
+train_params:
+  accelerator: "auto"
+  devices: "auto"
+  max_epochs: 100
+  deterministic: False
+  log_every_n_steps: 10
+  gradient_clip_val: 1.0
+  accumulate_grad_batches: 4
+
+debug_params:
+  accelerator: "auto"
+  devices: "auto"
+  max_epochs: 1        
+  limit_train_batches: 5  
+  limit_val_batches: 5  
+  limit_test_batches: 5 
+  logger: False 
+  callbacks: []

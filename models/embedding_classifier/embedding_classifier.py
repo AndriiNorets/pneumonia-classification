@@ -4,14 +4,19 @@ from torchmetrics import Accuracy, F1Score
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from pytorch_lightning import LightningModule
 from transformers import AutoModel, AutoProcessor
+from typing import List
 
 
 class EmbeddingClassifier(LightningModule):
     def __init__(
         self,
-        model_name: str = "facebook/dinov2-base",
-        num_classes: int = 2,
-        learning_rate: float = 1e-3,
+        model_name: str,
+        num_classes: int,
+        class_weights: List[float],
+        head_hidden_features: int,
+        dropout: float,
+        weight_decay: float,
+        learning_rate: float,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -26,13 +31,14 @@ class EmbeddingClassifier(LightningModule):
 
         self.classifier_head = nn.Sequential(
             nn.LayerNorm(self.embedding_size),
-            nn.Linear(self.embedding_size, 512),
+            nn.Linear(self.embedding_size, self.hparams.head_hidden_features),
             nn.GELU(),
-            nn.Dropout(0.25),
-            nn.Linear(512, self.hparams.num_classes),
+            nn.Dropout(self.hparams.dropout),
+            nn.Linear(self.hparams.head_hidden_features, self.hparams.num_classes),
         )
 
-        self.criterion = nn.CrossEntropyLoss(weight=torch.tensor([1.85, 0.69]))
+        weights = torch.tensor(self.hparams.class_weights)
+        self.criterion = nn.CrossEntropyLoss(weight=weights)
 
         self.train_acc = Accuracy(task="binary")
         self.val_acc = Accuracy(task="binary")
@@ -105,7 +111,7 @@ class EmbeddingClassifier(LightningModule):
         optimizer = torch.optim.AdamW(
             self.classifier_head.parameters(),
             lr=self.hparams.learning_rate,
-            weight_decay=0.1,
+            weight_decay=self.hparams.weight_decay,
         )
 
         scheduler = {
