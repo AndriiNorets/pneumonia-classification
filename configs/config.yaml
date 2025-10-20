@@ -2,7 +2,7 @@
 
 defaults:
   - data: pneumonia
-  - model: yolo11l
+  - model: vgg16
   - trainer: default
   - _self_
 

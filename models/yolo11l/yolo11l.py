@@ -92,7 +92,7 @@ class PneumoniaYOLO11L(LightningModule):
         )
         scheduler = {
             "scheduler": ReduceLROnPlateau(
-                optimizer, patience=8, factor=0.1, min_lr=self.hparams.min_learning_rate, verbose=True
+                optimizer, patience=8, factor=0.7, min_lr=self.hparams.min_learning_rate, verbose=True
             ),
             "monitor": "val_loss",
         }
