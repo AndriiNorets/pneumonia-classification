@@ -5,16 +5,17 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from pytorch_lightning import LightningModule
 from typing import List
 
+
 class CNNModel(LightningModule):
     def __init__(
-        self, 
+        self,
         model_name: str,
-        input_channels: int, 
-        num_features: int, 
-        kernel_size: int, 
-        padding: int, 
-        stride: int, 
-        num_classes: int , 
+        input_channels: int,
+        num_features: int,
+        kernel_size: int,
+        padding: int,
+        stride: int,
+        num_classes: int,
         dropout: int,
         learning_rate: float,
         min_learning_rate: float,
@@ -87,7 +88,7 @@ class CNNModel(LightningModule):
                 self.hparams.num_features * 2 * 2 * 2 * 2, self.hparams.num_classes
             ),
         )
-        
+
         weights = torch.tensor(self.hparams.class_weights)
         self.criterion = nn.CrossEntropyLoss(
             weight=weights,

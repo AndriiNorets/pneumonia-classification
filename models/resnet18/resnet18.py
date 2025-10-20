@@ -8,10 +8,11 @@ from typing import List
 
 
 class PneumoniaResNet(LightningModule):
-    def __init__(self,
-        model_name: str, 
-        num_classes: int, 
-        learning_rate: float, 
+    def __init__(
+        self,
+        model_name: str,
+        num_classes: int,
+        learning_rate: float,
         min_learning_rate: float,
         num_features: int,
         dropout: float,
@@ -19,7 +20,6 @@ class PneumoniaResNet(LightningModule):
         class_weights: List[float],
         eps: float,
     ):
-                
         super().__init__()
         self.save_hyperparameters()
 

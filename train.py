@@ -72,17 +72,19 @@ data_module = PneumoniaDataModule(
 
 model = hydra.utils.instantiate(cfg.model)
 
-def debug():    
+
+def debug():
     trainer = pl.Trainer(**cfg.trainer.debug_params)
-    
+
     print("Run test()...")
     trainer.test(model, datamodule=data_module)
-    
+
     print("Debug run complete.")
+
 
 def train():
     wandb.login()
-    
+
     checkpoint_callback = ModelCheckpoint(
         monitor="val_loss",
         dirpath="./checkpoints",
@@ -114,7 +116,10 @@ def train():
 
     wandb.finish()
 
-    print("Training run complete! Best model saved at:", checkpoint_callback.best_model_path)
+    print(
+        "Training run complete! Best model saved at:",
+        checkpoint_callback.best_model_path,
+    )
 
 
 if __name__ == "__main__":
@@ -124,4 +129,3 @@ if __name__ == "__main__":
     elif cfg.mode == "train":
         print("\n--- Running in TRAIN mode")
         train()
- 

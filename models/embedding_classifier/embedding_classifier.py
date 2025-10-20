@@ -6,6 +6,7 @@ from pytorch_lightning import LightningModule
 from transformers import AutoModel, AutoProcessor
 from typing import List
 
+
 class EmbeddingClassifier(LightningModule):
     def __init__(
         self,

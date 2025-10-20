@@ -8,15 +8,15 @@ from typing import List
 
 
 class PneumoniaYOLO11L(LightningModule):
-    def __init__(self,
-        model_name: str, 
+    def __init__(
+        self,
+        model_name: str,
         num_classes: int,
         learning_rate: float,
         min_learning_rate: float,
         weight_decay: float,
         class_weights: List[float],
     ):
-
         super().__init__()
         self.save_hyperparameters()
 
@@ -88,11 +88,17 @@ class PneumoniaYOLO11L(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(
-            self.parameters(), lr=self.hparams.learning_rate, weight_decay=self.hparams.weight_decay
+            self.parameters(),
+            lr=self.hparams.learning_rate,
+            weight_decay=self.hparams.weight_decay,
         )
         scheduler = {
             "scheduler": ReduceLROnPlateau(
-                optimizer, patience=8, factor=0.7, min_lr=self.hparams.min_learning_rate, verbose=True
+                optimizer,
+                patience=8,
+                factor=0.7,
+                min_lr=self.hparams.min_learning_rate,
+                verbose=True,
             ),
             "monitor": "val_loss",
         }
