@@ -1,6 +1,6 @@
 # Pneumonia Classification from Chest X-Ray Images
 
-A deep learning project for classifying medical X-ray images to detect pneumonia, built with Hugging Face and PyTorch.
+A deep learning project for classifying medical X-ray images to classify lungs for pneumonia, built with Hugging Face and PyTorch.
 
 ## Setting Up the Project Locally
 
@@ -56,7 +56,63 @@ wandb: Enter your choice:
 
 ## Project Overview
 
-This project aims to develop an accurate deep learning model that can classify chest X-ray images as either normal or showing signs of pneumonia. The solution leverages modern machine learning techniques to assist in medical diagnosis.
+This project aims to develop an accurate comparison of transfer learning and training from scratch deep learning methodologies in pneumonia classification based on X-ray images. 
+
+## Project Structure
+
+```
+├── .github/                 # GitHub settings (e.g., workflows)
+├── configs/                 # Main directory for Hydra configurations
+│   ├── config.yaml          # Main config file that orchestrates experiments
+│   ├── data/
+│   │   └── pneumonia.yaml   # Configuration for the DataModule
+│   ├── model/
+│   │   ├── cnn.yaml
+│   │   ├── dinov2.yaml
+│   │   ├── resnet18.yaml
+│   │   ├── vgg16.yaml
+│   │   └── yolo11l.yaml
+│   └── trainer/
+│       └── default.yaml     # Configuration for the Trainer
+│
+├── dataset/                 # Code for download data from HuggingFace
+│   ├── __init__.py
+│   └── datamodule.py
+│
+├── model_weights/           # Locally stored YOLO11L model weights
+│   └── yolo11l-cls.pt
+│
+├── models/                  
+│   ├── cnn/
+│   │   ├── __init__.py
+│   │   └── cnn.py
+│   ├── embedding_classifier/
+│   │   ├── __init__.py
+│   │   └── embedding_classifier.py
+│   ├── resnet18/
+│   │   ├── __init__.py
+│   │   └── resnet18.py
+│   ├── vgg16/
+│   │   ├── __init__.py
+│   │   └── vgg16.py
+│   └── yolo11l/
+│       ├── __init__.py
+│       └── yolo11l.py
+│
+├── tests/                  
+│   ├── __init__.py
+│   └── datamodule_test.py   # Test for Datamodule  
+│
+├── .gitignore               # Files ignored by Git
+├── Makefile                 # Commands to manage the project
+├── README.md                # Project description
+├── app.py                   # Web application (Gradio)
+├── check_poetry_version.sh  # Auxiliary script
+├── model_embeddings_comprison.py 
+├── poetry.lock              # Locked dependency versions
+├── pyproject.toml           # Poetry configuration file
+└── train.py                 # Main script for running the training process
+```
 
 ## Dataset
 
@@ -87,22 +143,26 @@ self.criterion = nn.CrossEntropyLoss(weight=weights)
 ## Models
 
 #### ResNet18
+18-layer convolutional neural network 
 | Layer name      | Parametrs |
 | --------------- | --------- |
 | ResNet18        | 11.4 M    |
 
 
 #### VGG16
+6-layer convolutional neural network 
 | Layer name      | Parametrs |
 | --------------- | --------- |
 | VGG16           | 134 M     |
 
-#### YOLO11L
+#### YOLO11L-cls
+<strong>YOLO11L-cls</strong> - pretrained convolutional neural network model from `ultralytics` for image classification
 | Layer name      | Parametrs |
 | --------------- | --------- |
 | YOLO11L         | 12.8 M    |
 
 #### CNN from scratch
+5-layer convolutional neural network 
 | Layer name      | Parametrs |
 | --------------- | --------- |
 | layer1          | 960       |
@@ -112,28 +172,10 @@ self.criterion = nn.CrossEntropyLoss(weight=weights)
 | classifier      | 25.7 M    |
 
 #### DINOV2 + classification head
-
+self-supervised Vision Transformer model with lassification head linear layer
 | Layer name      | Parametrs |
 | --------------- | --------- |
 | Dinov2Model     | 86.6 M    |
 | classifier_head | 396 K     | 
 
-## Training Process
-
-The model was trained using PyTorch Lightning with the following configuration:
-
-- Framework: PyTorch Lightning & Lightning AI Studio
-- Monitoring: Weights & Biases (wandb) for real-time metrics tracking
-- Training:
-  - Batch size: 16 (gradient accumulation: 4 steps)
-  - Max epochs: 100 (early stopping patience: 100)
-  - Optimizer: AdamW (lr=3e-4, weight decay=0.01)
-  - Augmentations: Random crops/flips + normalization
-- Validation: Center crops only
-- Regularization:
-  - Dropout (0.2)
-  - Label smoothing (0.1)
-  - Class-weighted loss ([1.85, 0.69])
-- Checkpoints: Top 3 models saved (val_loss monitored)
-- Metrics Tracked: Loss, Accuracy, F1.
   
