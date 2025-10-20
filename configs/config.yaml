@@ -2,7 +2,7 @@
 
 defaults:
   - data: pneumonia
-  - model: vgg16
+  - model: dinov2
   - trainer: default
   - _self_
 
