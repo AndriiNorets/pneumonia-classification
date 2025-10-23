@@ -2,6 +2,8 @@
 
 A deep learning project for classifying medical X-ray images to classify lungs for pneumonia, built with Hugging Face and PyTorch.
 
+Web application with models usage functionality on Huggingface: [Link to the application](<https://huggingface.co/spaces/AndriiNorets/pneumonia-classification>)
+
 ## Setting Up the Project Locally
 
 ### Prerequisites
@@ -19,12 +21,39 @@ git clone https://github.com/AndriiNorets/pneumonia-classification.git
 ```bash
 cd pneumonia-classification
 ```
-3. Install project dependencies with `Makefile`
+
+3. Install Make
+
+    <strong>Windows</strong>
+
+    - Open a PowerShell terminal (version 5.1 or later) and from the PS C:\> prompt, run: 
+    ```bash
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+    Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+    ```
+
+    - Install Make
+    ```bash
+    scoop install make
+    ```
+
+    <strong>Linux</strong>
+    - Install Make
+    ```bash
+    sudo apt update
+    ```
+
+    ```bash
+    sudo apt install make
+    ```
+
+
+4. Install project dependencies with `Makefile`
 ```bash
 Make install
 ```
 
-4. Chose `mode` and `model` in `configs/config.yaml`
+5. Chose `mode` and `model` in `configs/config.yaml`
 
 ```yaml
 model: # resnet18 / yolo11l / vgg16 / cnn / dinov2
@@ -37,12 +66,12 @@ mode: # debug or train
 <strong>Debug</strong> - in this mode in will run model for 1 epoch in test mode for check if everything work.
 <strong>Train</strong> - in this mode in will run training process with superparametrs in `config/` files
 
-5. Start training process 
+6. Start training process 
 ```bash
 Make train
 ```
 
-6. In train mode you will be asked for `Wandb` login
+7. In train mode you will be asked for `Wandb` login
 
 ```bash
 wandb: Using wandb-core as the SDK backend.  Please refer to https://wandb.me/wandb-core for more information.
@@ -106,8 +135,7 @@ This project aims to develop an accurate comparison of transfer learning and tra
 ├── .gitignore               # Files ignored by Git
 ├── Makefile                 # Commands to manage the project
 ├── README.md                # Project description
-├── app.py                   # Web application (Gradio)
-├── check_poetry_version.sh  # Auxiliary script
+├── check_poetry_version.sh  # Poetry version checker script
 ├── model_embeddings_comprison.py 
 ├── poetry.lock              # Locked dependency versions
 ├── pyproject.toml           # Poetry configuration file
@@ -156,7 +184,7 @@ self.criterion = nn.CrossEntropyLoss(weight=weights)
 | VGG16           | 134 M     |
 
 #### YOLO11L-cls
-<strong>YOLO11L-cls</strong> - pretrained convolutional neural network model from `ultralytics` for image classification
+pretrained convolutional neural network model from `ultralytics` for image classification
 | Layer name      | Parametrs |
 | --------------- | --------- |
 | YOLO11L         | 12.8 M    |
