@@ -22,7 +22,12 @@ git clone https://github.com/AndriiNorets/pneumonia-classification.git
 cd pneumonia-classification
 ```
 
-3. Install Make
+3. Activate your environment
+```bash
+poetry shell
+```
+
+4. Install Make
 
     <strong>Windows</strong>
 
@@ -48,12 +53,12 @@ cd pneumonia-classification
     ```
 
 
-4. Install project dependencies with `Makefile`
+5. Install project dependencies with `Makefile`
 ```bash
 Make install
 ```
 
-5. Chose `mode` and `model` in `configs/config.yaml`
+6. Chose `mode` and `model` in `configs/config.yaml`
 
 ```yaml
 model: # resnet18 / yolo11l / vgg16 / cnn / dinov2
@@ -66,12 +71,12 @@ mode: # debug or train
 <strong>Debug</strong> - in this mode in will run model for 1 epoch in test mode for check if everything work.
 <strong>Train</strong> - in this mode in will run training process with superparametrs in `config/` files
 
-6. Start training process 
+7. Start training process 
 ```bash
 Make train
 ```
 
-7. In train mode you will be asked for `Wandb` login
+8. In train mode you will be asked for `Wandb` login
 
 ```bash
 wandb: Using wandb-core as the SDK backend.  Please refer to https://wandb.me/wandb-core for more information.
