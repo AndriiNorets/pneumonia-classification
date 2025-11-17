@@ -6,7 +6,7 @@ authors = ["Andrii Norets <104683293+KabinetFnsv@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11, <3.13"
 torch = "^2.6.0"
 torchvision = "^0.21.0"
 matplotlib = "^3.10.1"

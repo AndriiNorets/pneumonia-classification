@@ -8,7 +8,7 @@ Web application with models usage functionality on Huggingface: [Link to the app
 
 ### Prerequisites
 
-- Python 3.11 or higher
+- Python 3.11 or 3.12
 - Poetry package manager
 
 ### Manual Setup
@@ -22,12 +22,7 @@ git clone https://github.com/AndriiNorets/pneumonia-classification.git
 cd pneumonia-classification
 ```
 
-3. Activate your environment
-```bash
-poetry shell
-```
-
-4. Install Make
+3. Install Make
 
     <strong>Windows</strong>
 
@@ -52,6 +47,10 @@ poetry shell
     sudo apt install make
     ```
 
+4. Activate your environment
+```bash
+poetry shell
+```
 
 5. Install project dependencies with `Makefile`
 ```bash
