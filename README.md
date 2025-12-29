@@ -171,6 +171,7 @@ weights = torch.tensor(self.hparams.class_weights)
 self.criterion = nn.CrossEntropyLoss(weight=weights)
 ```
 
+Chest X-Ray Images (Pneumonia) License: CC BY 4.0 License
 
 ## Models
 
@@ -181,17 +182,23 @@ self.criterion = nn.CrossEntropyLoss(weight=weights)
 | ResNet18        | 11.4 M    |
 
 
+License: BSD 3-Clause
+
 #### VGG16
 6-layer convolutional neural network 
 | Layer name      | Parametrs |
 | --------------- | --------- |
 | VGG16           | 134 M     |
 
+License: GNU GENERAL PUBLIC LICENSE Version 3
+
 #### YOLO11L-cls
 pretrained convolutional neural network model from `ultralytics` for image classification
 | Layer name      | Parametrs |
 | --------------- | --------- |
 | YOLO11L         | 12.8 M    |
+
+License: AGPL-3.0 and Enterprise 
 
 #### CNN from scratch
 5-layer convolutional neural network 
@@ -209,5 +216,7 @@ self-supervised Vision Transformer model with lassification head linear layer
 | --------------- | --------- |
 | Dinov2Model     | 86.6 M    |
 | classifier_head | 396 K     | 
+
+License: Apache 2.0
 
   
